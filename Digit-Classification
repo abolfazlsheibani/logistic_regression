@@ -1,0 +1,101 @@
+# حالا مستند کل این برنامه:
+
+# ==============================================================================
+# Project: Digit Classification using Logistic Regression
+# Goal: Predict hand-written digits using the Scikit-learn digits dataset
+# ==============================================================================
+
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn import datasets, linear_model
+import sklearn.metrics as sm
+from sklearn.model_selection import train_test_split
+
+# ------------------------------------------------------------------------------
+# 1. Data Loading | بارگذاری داده‌ها
+# ------------------------------------------------------------------------------
+
+# Load the digits dataset | بارگذاری دیتاست اعداد
+digits = datasets.load_digits()
+
+# Extract features and target | استخراج ویژگی‌ها و هدف
+X = digits.data # Features (Pixel values) | ویژگی‌ها (مقادیر پیکسل‌ها)
+y = digits.target # Target (The actual digit) | هدف (عدد واقعی)
+
+# Split data into Training and Testing sets | تقسیم داده‌ها به مجموعه‌های آموزش و تست
+# 80% for training and 20% for testing | ۸۰٪ برای آموزش و ۲۰٪ برای تست
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# ------------------------------------------------------------------------------
+# 2. Model Training | آموزش مدل
+# ------------------------------------------------------------------------------
+
+# Initialize Logistic Regression model | مقداردهی اولیه مدل رگرسیون لجستیک
+model = linear_model.LogisticRegression(max_iter=10000) 
+
+# Fit the model to training data | آموزش مدل با داده‌های آموزشی
+model.fit(X_train, y_train)
+
+# Predict the labels for the test set | پیش‌بینی برچسب‌ها برای مجموعه تست
+out = model.predict(X_test)
+
+# ------------------------------------------------------------------------------
+# 3. Evaluation & Comparison | ارزیابی و مقایسه نتایج
+# ------------------------------------------------------------------------------
+
+# Create a DataFrame to compare Actual vs Predicted values | ساخت جدول برای مقایسه مقادیر واقعی و پیش‌بینی شده
+df = pd.DataFrame({'Actual (واقعی)': y_test, 'Predicted (پیش‌بینی)': out})
+print("--- First 15 Predictions ---")
+print(df.head(15))
+print("\n" + "="*30 + "\n")
+
+# Calculate errors | محاسبه خطاها
+er = y_test - out
+
+# ------------------------------------------------------------------------------
+# METHOD 1: Simple Loop Approach (Beginner level)
+# روش اول: استفاده از حلقه (سطح مبتدی)
+# ------------------------------------------------------------------------------
+tdad_sefr = 0     # Correct predictions count | تعداد پیش‌بینی‌های صحیح
+tdad_adadi = 0    # Incorrect predictions count | تعداد پیش‌بینی‌های اشتباه
+
+for t in er:
+    if t == 0:
+        tdad_sefr += 1
+    else:
+        tdad_adadi += 1
+
+print(f"Method 1 (Loop) -> Correct: {tdad_sefr}, Incorrect: {tdad_adadi}")
+
+
+# ------------------------------------------------------------------------------
+# METHOD 2: Vectorized NumPy Approach (Intermediate level)
+# روش دوم: استفاده از نامپای (سطح متوسط)
+# ------------------------------------------------------------------------------
+correct_np = np.sum(y_test == out) 
+incorrect_np = len(y_test) - correct_np
+
+print(f"Method 2 (NumPy) -> Correct: {correct_np}, Incorrect: {incorrect_np}")
+
+
+# ------------------------------------------------------------------------------
+# METHOD 3: Scikit-learn Standard Approach (Professional level)
+# روش سوم: روش استاندارد اسکلرن (سطح حرفه‌ای)
+# ------------------------------------------------------------------------------
+accuracy = sm.accuracy_score(y_test, out)
+
+print(f"Method 3 (SKLearn) -> Accuracy: {accuracy * 100:.2f}%")
+
+# ------------------------------------------------------------------------------
+# 4. Visualization: Confusion Matrix | تصویرسازی: ماتریس اغتشاش
+# ------------------------------------------------------------------------------
+conf_matrix = sm.confusion_matrix(y_test, out)
+
+plt.figure(figsize=(8,6))
+sns.heatmap(conf_matrix, annot=True, cmap='Blues', fmt='d')
+plt.xlabel('Predicted Label')
+plt.ylabel('True Label')
+plt.title('Confusion Matrix - Digit Classification')
+plt.show()
